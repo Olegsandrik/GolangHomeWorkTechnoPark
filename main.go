@@ -2,10 +2,13 @@ package main
 
 import (
 	"bufio"
+	//"github.com/go-park-mail-ru/lectures/1-basics/6_is_sorted/sorted"
+
+	sorted "GolangHomeWorkTechnoPark/calc"
+	//"github.com/go-park-mail-ru/lectures/1-basics/6_is_sorted/sorted"
 	"log"
 	"os"
 
-	"github.com/go-park-mail-ru/lectures/1-basics/6_is_sorted/sorted"
 	// go get "github.com/go-park-mail-ru/lectures/1-basics/6_is_sorted" для установки!
 	// echo "123\n123\n321\n" | go run main.go для тестирования утилиты
 )
