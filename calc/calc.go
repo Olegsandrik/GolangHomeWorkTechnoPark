@@ -1,14 +1,46 @@
-package calc
+package main
 
 import (
+	"bufio"
 	"log"
+	"os"
 	"strconv"
+	"strings"
 )
 
-func Calculator(stringToCalc []string) int {
+func main() {
+	var inputStrings string
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	inputStrings = scanner.Text()
+
+	if err := scanner.Err(); err != nil {
+		log.Fatalf("input scanning failed: %s", err)
+	}
+
+	log.Println(Calculator(inputStrings))
+
+}
+
+type Stack []string
+
+func (s *Stack) Push(value string) {
+	*s = append(*s, value)
+}
+
+func (s *Stack) Pop() string {
+	if len(*s) == 0 {
+		return ""
+	}
+	index := len(*s) - 1
+	value := (*s)[index]
+	*s = (*s)[:index]
+	return value
+}
+func Calculator(inputSting string) int {
+	stringToCalc := strings.Split(strings.ReplaceAll(inputSting, " ", ""), "")
 	stringToCalc = unionBigNumbers(stringToCalc)
-	log.Println(stringToCalc)
-	return 0 //parseAll(stringToCalc)
+	return parseAll(stringToCalc)
 }
 
 // Функция, позволяющая корректно разбить входные данные на отдельные строки, чтобы в последствии работать со слайсами.
@@ -48,67 +80,6 @@ func unionBigNumbers(stringWithoutBigNumbers []string) []string {
 	return stringWithBigNumbers
 }
 
-// Надевает на * и на / скобки, для того, чтобы вычисления были корректны с математической точки зрения.
-func prioritetBinOp(stringToCalc []string) []string {
-	for i := 0; i < len(stringToCalc); i++ {
-		if stringToCalc[i] == "*" || stringToCalc[i] == "/" {
-
-		}
-	}
-	return nil
-}
-
-// Надевает на * и на / скобки, для того, чтобы вычисления были корректны с математической точки зрения.
-func prioritetBinOpV2(stringToCalc []string) []string {
-	for i := 0; i < len(stringToCalc)-1; i++ {
-		if stringToCalc[i] == "*" || stringToCalc[i] == "/" {
-			openIndexPrioritet := i
-			closeIndexPrioritet := i
-			for j := i; j < len(stringToCalc); {
-				if stringToCalc[j] == "*" || stringToCalc[j] == "/" {
-					continue
-				}
-				if stringToCalc[j] == "+" || stringToCalc[j] == "-" {
-					closeIndexPrioritet = j
-					break
-				}
-				if stringToCalc[j] == "(" {
-					openIndexBracket := j
-					openCountBracket := 1
-					closeIndexBracket := j
-					for k := j; k < len(stringToCalc); k++ {
-						if stringToCalc[k] == "(" {
-							openCountBracket++
-						}
-						if stringToCalc[k] == ")" {
-							openCountBracket--
-							if openCountBracket == 0 {
-								closeIndexBracket = k
-								break
-							}
-						}
-					}
-					intermediateString := prioritetBinOpV2(stringToCalc[openIndexBracket+1 : closeIndexBracket])
-					leftPart := stringToCalc[:openIndexBracket]
-					leftPart = append(leftPart, intermediateString...)
-					rightPart := stringToCalc[closeIndexBracket+1:]
-					stringToCalc = append(leftPart, rightPart...)
-				}
-				j += 2
-			}
-			if openIndexPrioritet == closeIndexPrioritet {
-				leftPart := stringToCalc[:openIndexPrioritet]
-				leftPart = append([]string{"("}, leftPart...)
-				rightPart := stringToCalc[closeIndexPrioritet+1:]
-				stringToCalc = append(leftPart, rightPart...)
-				stringToCalc = append(stringToCalc, ")")
-			}
-		}
-
-	}
-	return stringToCalc
-}
-
 // Функция бинарных операций
 func parseBinOp(stringToCalc []string) int {
 	var (
@@ -116,16 +87,7 @@ func parseBinOp(stringToCalc []string) int {
 	)
 
 	switch {
-	case stringToCalc[1] == "*":
-		firstBinOp, err := strconv.Atoi(stringToCalc[0])
-		if err != nil {
-			log.Fatal(err)
-		}
-		secondBinOp, err := strconv.Atoi(stringToCalc[2])
-		if err != nil {
-			log.Fatal(err)
-		}
-		result = result + firstBinOp*secondBinOp
+
 	case stringToCalc[1] == "+":
 		firstBinOp, err := strconv.Atoi(stringToCalc[0])
 		if err != nil {
@@ -146,7 +108,7 @@ func parseBinOp(stringToCalc []string) int {
 			log.Fatal(err)
 		}
 		result += firstBinOp - secondBinOp
-	case stringToCalc[1] == "/":
+	case stringToCalc[1] == "/": // наверное лишнее, так как тут считаются только + и -
 		firstBinOp, err := strconv.Atoi(stringToCalc[0])
 		if err != nil {
 			log.Fatal(err)
@@ -156,6 +118,16 @@ func parseBinOp(stringToCalc []string) int {
 			log.Fatal(err)
 		}
 		result += firstBinOp / secondBinOp
+	case stringToCalc[1] == "*":
+		firstBinOp, err := strconv.Atoi(stringToCalc[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+		secondBinOp, err := strconv.Atoi(stringToCalc[2])
+		if err != nil {
+			log.Fatal(err)
+		}
+		result = result + firstBinOp*secondBinOp
 	}
 
 	return result
@@ -167,7 +139,7 @@ func parseAll(stringToCalc []string) int {
 		result = 0
 	)
 
-	// этот цикл разбивает данные на скобки, рекурсивно заходя в каждые подскобки и вычисляя там значения подскобки
+	// Этот цикл разбивает данные на скобки, рекурсивно заходя в каждую из подскобок и вычисляя значение в ней
 	for i := 0; i < len(stringToCalc); i++ {
 		if stringToCalc[i] == "(" {
 			openIndex := i
@@ -193,7 +165,28 @@ func parseAll(stringToCalc []string) int {
 		}
 	}
 
-	// Цикл, который позволяет пройтись по слайсу и линейно вычислить значения внутри него
+	// Цикл, который позволяет пройтись по слайсу и вычислить значения внутри него относительно умножения и деления
+	var stack Stack
+	stack.Push(stringToCalc[0])
+	for i := 1; i < len(stringToCalc)-1; {
+		if stringToCalc[i] == "+" || stringToCalc[i] == "-" {
+			stack.Push(stringToCalc[i])
+			stack.Push(stringToCalc[i+1])
+		} else {
+			firstBinOp, _ := strconv.Atoi(stack.Pop())
+			secondBinOp, _ := strconv.Atoi(stringToCalc[i+1])
+			if stringToCalc[i] == "*" {
+				stack.Push(strconv.Itoa(firstBinOp * secondBinOp))
+			} else {
+				stack.Push(strconv.Itoa(firstBinOp / secondBinOp))
+			}
+		}
+		i += 2
+	}
+
+	stringToCalc = stack
+
+	// Цикл, который позволяет пройтись по слайсу и линейно вычислить значения внутри него относительно сложения и вычитания
 	for 1 < len(stringToCalc) {
 		intermediateResult := strconv.Itoa(parseBinOp(stringToCalc[0:3]))
 		rightPart := make([]string, len(stringToCalc)-2)

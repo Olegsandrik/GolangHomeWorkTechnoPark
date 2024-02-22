@@ -1,21 +1,21 @@
-package calc
+package main
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestCheckSuccess(t *testing.T) {
-	var sortedInput = []string{"1", "2", "3", "4", "5"}
-
-	err := Check(sortedInput)
-	if err != nil {
-		t.Fatalf("Check failed on sorted input: %s", err)
+	var inputString = "1*(6*8*6)*(18/2/3/3*9)+4*(17))"
+	answer := Calculator(inputString)
+	if answer != 2660 {
+		t.Fatalf("Incorrect result")
 	}
 }
 
 func TestCheckFail(t *testing.T) {
-	var mixedInput = []string{"1", "5", "3", "2", "4"}
-
-	err := Check(mixedInput)
-	if err == nil {
-		t.Fatalf("Check not failed on mixed input: %s", err)
+	var inputString = "19+6*8*6+18/2/3/3*9+4"
+	answer := Calculator(inputString)
+	if answer != 320 {
+		t.Fatalf("fail")
 	}
 }
