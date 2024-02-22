@@ -1,17 +1,27 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"os"
 	"strconv"
 	"strings"
 )
 
+// 4***100
+// 4**-100 - ошибка, но не корректно обработана
+// 4+-100 - ошибка, но не корректно обработана
+// 4+(-100) считает
 func main() {
 	var inputString string
 	inputString = os.Args[1]
 	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
-	log.Println(Calculator(stringToCalc))
+	result, err := Calculator(stringToCalc)
+	if err != nil {
+		log.Println(err)
+	} else {
+		log.Println(result)
+	}
 }
 
 type Stack []string
@@ -29,12 +39,14 @@ func (s *Stack) Pop() string {
 	*s = (*s)[:index]
 	return value
 }
-func Calculator(inputSting []string) int {
-	log.Println(inputSting)
+
+func Calculator(inputSting []string) (int, error) {
 	inputSting = unionBigNumbers(inputSting)
-	log.Println(inputSting, len(inputSting))
-	answer := parseAll(inputSting)
-	return answer
+	answer, err := parseAll(inputSting)
+	if err != nil {
+		return 0, err
+	}
+	return answer, nil
 }
 
 // Функция, позволяющая корректно разбить входные данные на отдельные строки, чтобы в последствии работать со слайсами.
@@ -128,7 +140,7 @@ func parseBinOp(stringToCalc []string) int {
 }
 
 // Основная функция преобразования строки в ответ
-func parseAll(stringToCalc []string) int {
+func parseAll(stringToCalc []string) (int, error) {
 	var (
 		result = 0
 	)
@@ -153,7 +165,11 @@ func parseAll(stringToCalc []string) int {
 					}
 				}
 			}
-			intermediateString := strconv.Itoa(parseAll(stringToCalc[openIndex+1 : closeIndex]))
+			tmp, err := parseAll(stringToCalc[openIndex+1 : closeIndex])
+			if err != nil {
+				return 0, err
+			}
+			intermediateString := strconv.Itoa(tmp)
 			leftPart := stringToCalc[:openIndex]
 			leftPart = append(leftPart, intermediateString)
 			rightPart := stringToCalc[closeIndex+1:]
@@ -173,21 +189,23 @@ func parseAll(stringToCalc []string) int {
 			secondBinOp, _ := strconv.Atoi(stringToCalc[i+1])
 			if stringToCalc[i] == "*" {
 				if stringToCalc[i+1] == "-" {
-					log.Println("Ошибка синтаксиса! Добавьте, пожалуйста, унарные минусы в скобки, так гласят правила математики")
+					Err := errors.New("ошибка синтаксиса! Добавьте, пожалуйста, унарные минусы в скобки, так гласят правила математики")
+					return 0, Err
 				}
 				stack.Push(strconv.Itoa(firstBinOp * secondBinOp))
 			} else if stringToCalc[i] == "/" {
 				if stringToCalc[i+1] == "-" {
-					log.Println("Ошибка синтаксиса! Добавьте, пожалуйста, унарные минусы в скобки, так гласят правила математики")
+					Err := errors.New("ошибка синтаксиса! Добавьте, пожалуйста, унарные минусы в скобки, так гласят правила математики")
+					return 0, Err
 				}
 				stack.Push(strconv.Itoa(firstBinOp / secondBinOp))
 			} else {
-				log.Println("Ошибка синтаксиса! Добавьте, пожалуйста, унарные минусы в скобки, так гласят правила математики")
+				Err := errors.New("ошибка синтаксиса! Добавьте, пожалуйста, унарные минусы в скобки, так гласят правила математики")
+				return 0, Err
 			}
 		}
 		i += 2
 	}
-
 	stringToCalc = stack
 
 	// Цикл, который позволяет пройтись по слайсу и линейно вычислить значения внутри него относительно сложения и вычитания
@@ -202,5 +220,5 @@ func parseAll(stringToCalc []string) int {
 		stringToCalc = rightPart
 	}
 	result, _ = strconv.Atoi(stringToCalc[0])
-	return result
+	return result, nil
 }
