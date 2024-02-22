@@ -2,33 +2,32 @@ package main
 
 import (
 	"bufio"
+	"strings"
+
 	//"github.com/go-park-mail-ru/lectures/1-basics/6_is_sorted/sorted"
 
-	sorted "GolangHomeWorkTechnoPark/calc"
+	calc "GolangHomeWorkTechnoPark/calc"
 	//"github.com/go-park-mail-ru/lectures/1-basics/6_is_sorted/sorted"
 	"log"
 	"os"
-
 	// go get "github.com/go-park-mail-ru/lectures/1-basics/6_is_sorted" для установки!
-	// echo "123\n123\n321\n" | go run main.go для тестирования утилиты
+	// echo "123\n123\n321\n" | go run main.go для тестирования утилиты, показавшую на лекции - не корректно работает)
+	// echo -e "123\n123\n333\n111" | go run main.go -- работает корректно)
+	// go run main.go "(1+2)-3" - тестим калькулятор
 )
 
 func main() {
-	var inputStrings []string
+	var inputStrings string
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	inputStrings = scanner.Text()
 
-	in := bufio.NewScanner(os.Stdin)
-	for in.Scan() {
-		inputStrings = append(inputStrings, in.Text())
-	}
+	inputString := strings.Split(strings.ReplaceAll(inputStrings, " ", ""), "")
 
-	if err := in.Err(); err != nil {
+	if err := scanner.Err(); err != nil {
 		log.Fatalf("input scanning failed: %s", err)
 	}
 
-	if err := sorted.Check(inputStrings); err != nil {
-		log.Fatalf("sorted check failed: %s", err)
-	}
-
-	log.Println("strings are sorted")
+	log.Println(calc.Calculator(inputString))
 
 }
