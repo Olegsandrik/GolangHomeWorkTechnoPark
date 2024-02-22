@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"log"
 	"os"
 	"strconv"
@@ -9,17 +8,10 @@ import (
 )
 
 func main() {
-	var inputStrings string
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	inputStrings = scanner.Text()
-
-	if err := scanner.Err(); err != nil {
-		log.Fatalf("input scanning failed: %s", err)
-	}
-
-	log.Println(Calculator(inputStrings))
-
+	var inputString string
+	inputString = os.Args[1]
+	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
+	log.Println(Calculator(stringToCalc))
 }
 
 type Stack []string
@@ -37,10 +29,12 @@ func (s *Stack) Pop() string {
 	*s = (*s)[:index]
 	return value
 }
-func Calculator(inputSting string) int {
-	stringToCalc := strings.Split(strings.ReplaceAll(inputSting, " ", ""), "")
-	stringToCalc = unionBigNumbers(stringToCalc)
-	return parseAll(stringToCalc)
+func Calculator(inputSting []string) int {
+	log.Println(inputSting)
+	inputSting = unionBigNumbers(inputSting)
+	log.Println(inputSting, len(inputSting))
+	answer := parseAll(inputSting)
+	return answer
 }
 
 // Функция, позволяющая корректно разбить входные данные на отдельные строки, чтобы в последствии работать со слайсами.
@@ -76,7 +70,7 @@ func unionBigNumbers(stringWithoutBigNumbers []string) []string {
 	if len(intermediateString) == 1 {
 		stringWithBigNumbers = append(stringWithBigNumbers, intermediateString)
 	}
-	stringWithBigNumbers = append([]string{"("}, append(stringWithBigNumbers, ")")...)
+	//stringWithBigNumbers = append([]string{"("}, append(stringWithBigNumbers, ")")...)
 	return stringWithBigNumbers
 }
 
@@ -138,7 +132,9 @@ func parseAll(stringToCalc []string) int {
 	var (
 		result = 0
 	)
-
+	if stringToCalc[0] == "-" { // значит требуется вычислить отрицательное число
+		stringToCalc[0] = stringToCalc[0] + stringToCalc[1]
+	}
 	// Этот цикл разбивает данные на скобки, рекурсивно заходя в каждую из подскобок и вычисляя значение в ней
 	for i := 0; i < len(stringToCalc); i++ {
 		if stringToCalc[i] == "(" {
@@ -176,9 +172,17 @@ func parseAll(stringToCalc []string) int {
 			firstBinOp, _ := strconv.Atoi(stack.Pop())
 			secondBinOp, _ := strconv.Atoi(stringToCalc[i+1])
 			if stringToCalc[i] == "*" {
+				if stringToCalc[i+1] == "-" {
+					log.Println("Ошибка синтаксиса! Добавьте, пожалуйста, унарные минусы в скобки, так гласят правила математики")
+				}
 				stack.Push(strconv.Itoa(firstBinOp * secondBinOp))
-			} else {
+			} else if stringToCalc[i] == "/" {
+				if stringToCalc[i+1] == "-" {
+					log.Println("Ошибка синтаксиса! Добавьте, пожалуйста, унарные минусы в скобки, так гласят правила математики")
+				}
 				stack.Push(strconv.Itoa(firstBinOp / secondBinOp))
+			} else {
+				log.Println("Ошибка синтаксиса! Добавьте, пожалуйста, унарные минусы в скобки, так гласят правила математики")
 			}
 		}
 		i += 2
