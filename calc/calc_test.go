@@ -422,50 +422,197 @@ func TestCheckSuccess35(t *testing.T) {
 	}
 }
 
-func TestCheckFail(t *testing.T) {
-	var inputString = "-1111111111-111111111"
+func TestCheckSuccess36(t *testing.T) {
+	var inputString = "(-100)"
 	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
 	answer, err := Calculator(stringToCalc)
 	if err != nil {
 		t.Fatalf("%s", err)
 	}
-	if answer != -1222222222 {
+	if answer != -100 {
 		t.Fatalf("Incorrect result")
 	}
 }
 
-func TestCheckFail2(t *testing.T) {
+func TestCheckSuccess37(t *testing.T) {
+	var inputString = "(+100)"
+	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
+	answer, err := Calculator(stringToCalc)
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
+	if answer != 100 {
+		t.Fatalf("Incorrect result")
+	}
+}
+
+func TestCheckSuccess38(t *testing.T) {
+	var inputString = "-1111111111-1111111111"
+	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
+	answer, err := Calculator(stringToCalc)
+	if answer != -2222222222 {
+		t.Fatalf("Incorrect result")
+	}
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
+}
+
+func TestCheckSuccess39(t *testing.T) {
 	var inputString = "-1111111111*4"
 	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
 	answer, err := Calculator(stringToCalc)
-	if err != nil {
-		t.Fatalf("%s", err)
-	}
 	if answer != -4444444444 {
 		t.Fatalf("Incorrect result")
 	}
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
+
 }
 
-func TestCheckFail3(t *testing.T) {
+func TestCheckSuccess40(t *testing.T) {
 	var inputString = "-100*4"
 	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
 	answer, err := Calculator(stringToCalc)
+	if answer != -400 {
+		t.Fatalf("Incorrect result")
+	}
 	if err != nil {
 		t.Fatalf("%s", err)
 	}
-	if answer != -1222222222 {
+
+}
+
+func TestCheckSuccess41(t *testing.T) {
+	var inputString = "-200+100*4"
+	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
+	answer, err := Calculator(stringToCalc)
+	if answer != 200 {
 		t.Fatalf("Incorrect result")
+	}
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
+
+}
+
+func TestCheckFail(t *testing.T) {
+	var inputString = "4*-100"
+	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
+	_, err := Calculator(stringToCalc)
+	if err != nil {
+		t.Fatalf("%s", err)
 	}
 }
 
-func TestCheckFail4(t *testing.T) {
-	var inputString = "4*-100"
+func TestCheckFail1(t *testing.T) {
+	var inputString = "1000--1000"
 	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
-	answer, err := Calculator(stringToCalc)
+	_, err := Calculator(stringToCalc)
 	if err != nil {
 		t.Fatalf("%s", err)
 	}
-	if answer != -4444444444 {
-		t.Fatalf("Incorrect result")
+
+}
+
+func TestCheckFail2(t *testing.T) {
+	var inputString = "222**222"
+	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
+	_, err := Calculator(stringToCalc)
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
+
+}
+
+func TestCheckFail3(t *testing.T) {
+	var inputString = "339//222"
+	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
+	_, err := Calculator(stringToCalc)
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
+
+}
+
+func TestCheckFail4(t *testing.T) {
+	var inputString = "*200"
+	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
+	_, err := Calculator(stringToCalc)
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
+}
+
+func TestCheckFail5(t *testing.T) {
+	var inputString = "(/200)+100*4"
+	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
+	_, err := Calculator(stringToCalc)
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
+}
+
+func TestCheckFail6(t *testing.T) {
+	var inputString = "(-200)-"
+	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
+	_, err := Calculator(stringToCalc)
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
+}
+
+func TestCheckFail7(t *testing.T) {
+	var inputString = "200/"
+	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
+	_, err := Calculator(stringToCalc)
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
+}
+
+func TestCheckFail8(t *testing.T) {
+	var inputString = "200+200*"
+	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
+	_, err := Calculator(stringToCalc)
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
+}
+
+func TestCheckFail9(t *testing.T) {
+	var inputString = "200*"
+	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
+	_, err := Calculator(stringToCalc)
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
+}
+
+func TestCheckFail10(t *testing.T) {
+	var inputString = "-200+++200"
+	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
+	_, err := Calculator(stringToCalc)
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
+}
+
+func TestCheckFail11(t *testing.T) {
+	var inputString = "-200+++++200"
+	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
+	_, err := Calculator(stringToCalc)
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
+}
+
+func TestCheckFail12(t *testing.T) {
+	var inputString = "200/-(-200)"
+	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
+	_, err := Calculator(stringToCalc)
+	if err != nil {
+		t.Fatalf("%s", err)
 	}
 }

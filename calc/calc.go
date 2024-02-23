@@ -8,10 +8,6 @@ import (
 	"strings"
 )
 
-// 4***100
-// 4**-100 - ошибка, но не корректно обработана
-// 4+-100 - ошибка, но не корректно обработана
-// 4+(-100) считает
 func main() {
 	var inputString string
 	inputString = os.Args[1]
@@ -144,9 +140,7 @@ func parseAll(stringToCalc []string) (int, error) {
 	var (
 		result = 0
 	)
-	if stringToCalc[0] == "-" { // значит требуется вычислить отрицательное число
-		stringToCalc[0] = stringToCalc[0] + stringToCalc[1]
-	}
+
 	// Этот цикл разбивает данные на скобки, рекурсивно заходя в каждую из подскобок и вычисляя значение в ней
 	for i := 0; i < len(stringToCalc); i++ {
 		if stringToCalc[i] == "(" {
@@ -165,11 +159,11 @@ func parseAll(stringToCalc []string) (int, error) {
 					}
 				}
 			}
-			tmp, err := parseAll(stringToCalc[openIndex+1 : closeIndex])
+			intermediateStringParse, err := parseAll(stringToCalc[openIndex+1 : closeIndex])
 			if err != nil {
 				return 0, err
 			}
-			intermediateString := strconv.Itoa(tmp)
+			intermediateString := strconv.Itoa(intermediateStringParse)
 			leftPart := stringToCalc[:openIndex]
 			leftPart = append(leftPart, intermediateString)
 			rightPart := stringToCalc[closeIndex+1:]
@@ -177,30 +171,76 @@ func parseAll(stringToCalc []string) (int, error) {
 		}
 	}
 
+	if stringToCalc[0] == "-" { // значит требуется вычислить отрицательное число в подскобке
+		stringToCalc[0] = stringToCalc[0] + stringToCalc[1]
+
+		if len(stringToCalc) > 2 {
+			stringToCalc = append([]string{stringToCalc[0]}, stringToCalc[2:]...)
+		} else {
+			stringToCalc = []string{stringToCalc[0]}
+		}
+
+		_, err := strconv.Atoi(stringToCalc[0])
+		if err != nil {
+			Err := errors.New("ошибка синтаксиса! Проверьте на наличие двух операторов подряд")
+			return 0, Err
+		}
+	}
+
+	if stringToCalc[0] == "+" { // в подскобке число начинается с +
+		stringToCalc[0] = stringToCalc[0] + stringToCalc[1]
+		if len(stringToCalc) > 2 {
+			stringToCalc = append([]string{stringToCalc[0]}, stringToCalc[2:]...)
+		} else {
+			stringToCalc = []string{stringToCalc[0]}
+		}
+		_, err := strconv.Atoi(stringToCalc[0])
+		if err != nil {
+			Err := errors.New("ошибка синтаксиса! Проверьте на наличие двух операторов подряд")
+			return 0, Err
+		}
+	}
+
+	if stringToCalc[0] == "*" || stringToCalc[0] == "/" { // в подскобке число начинается с * или /
+		Err := errors.New("ошибка синтаксиса! Проверьте на использования бинарной операции с одним операндом")
+		return 0, Err
+
+	}
+
+	if len(stringToCalc)%2 == 0 {
+		Err := errors.New("ошибка синтаксиса")
+		return 0, Err
+	}
+
 	// Цикл, который позволяет пройтись по слайсу и вычислить значения внутри него относительно умножения и деления
 	var stack Stack
 	stack.Push(stringToCalc[0])
 	for i := 1; i < len(stringToCalc)-1; {
 		if stringToCalc[i] == "+" || stringToCalc[i] == "-" {
+			if stringToCalc[i+1] == "+" || stringToCalc[i+1] == "-" || stringToCalc[i+1] == "*" || stringToCalc[i+1] == "/" {
+				Err := errors.New("ошибка синтаксиса! Проверьте на наличие двух операторов подряд")
+				return 0, Err
+			}
 			stack.Push(stringToCalc[i])
 			stack.Push(stringToCalc[i+1])
 		} else {
 			firstBinOp, _ := strconv.Atoi(stack.Pop())
 			secondBinOp, _ := strconv.Atoi(stringToCalc[i+1])
 			if stringToCalc[i] == "*" {
-				if stringToCalc[i+1] == "-" {
-					Err := errors.New("ошибка синтаксиса! Добавьте, пожалуйста, унарные минусы в скобки, так гласят правила математики")
+				if stringToCalc[i+1] == "+" || stringToCalc[i+1] == "-" || stringToCalc[i+1] == "*" || stringToCalc[i+1] == "/" {
+					Err := errors.New("ошибка синтаксиса! Проверьте на наличие двух операторов подряд")
 					return 0, Err
 				}
 				stack.Push(strconv.Itoa(firstBinOp * secondBinOp))
 			} else if stringToCalc[i] == "/" {
-				if stringToCalc[i+1] == "-" {
-					Err := errors.New("ошибка синтаксиса! Добавьте, пожалуйста, унарные минусы в скобки, так гласят правила математики")
+				if stringToCalc[i+1] == "+" || stringToCalc[i+1] == "-" || stringToCalc[i+1] == "*" || stringToCalc[i+1] == "/" {
+					Err := errors.New("ошибка синтаксиса! Проверьте на наличие двух операторов подряд")
 					return 0, Err
 				}
 				stack.Push(strconv.Itoa(firstBinOp / secondBinOp))
-			} else {
-				Err := errors.New("ошибка синтаксиса! Добавьте, пожалуйста, унарные минусы в скобки, так гласят правила математики")
+			} else { // -100*4 докинет в эту ветку
+				Err := errors.New("ошибка синтаксиса! Добавьте, пожалуйста, унарные минусы в скобки," +
+					"в соответствии правилами математики")
 				return 0, Err
 			}
 		}
@@ -208,7 +248,7 @@ func parseAll(stringToCalc []string) (int, error) {
 	}
 	stringToCalc = stack
 
-	// Цикл, который позволяет пройтись по слайсу и линейно вычислить значения внутри него относительно сложения и вычитания
+	// Цикл, который позволяет пройтись по слайсу и вычислить значения внутри него относительно сложения и вычитания
 	for 1 < len(stringToCalc) {
 		intermediateResult := strconv.Itoa(parseBinOp(stringToCalc[0:3]))
 		rightPart := make([]string, len(stringToCalc)-2)
