@@ -36,7 +36,7 @@ func (s *Stack) Pop() string {
 	return value
 }
 
-func Calculator(inputSting []string) (int, error) {
+func Calculator(inputSting []string) (float64, error) {
 	inputSting = unionBigNumbers(inputSting)
 	answer, err := parseAll(inputSting)
 	if err != nil {
@@ -83,49 +83,49 @@ func unionBigNumbers(stringWithoutBigNumbers []string) []string {
 }
 
 // Функция бинарных операций
-func parseBinOp(stringToCalc []string) int {
+func parseBinOp(stringToCalc []string) float64 {
 	var (
-		result = 0
+		result float64
 	)
 
 	switch {
 
 	case stringToCalc[1] == "+":
-		firstBinOp, err := strconv.Atoi(stringToCalc[0])
+		firstBinOp, err := strconv.ParseFloat(stringToCalc[0], 64)
 		if err != nil {
 			log.Fatal(err)
 		}
-		secondBinOp, err := strconv.Atoi(stringToCalc[2])
+		secondBinOp, err := strconv.ParseFloat(stringToCalc[2], 64)
 		if err != nil {
 			log.Fatal(err)
 		}
 		result += firstBinOp + secondBinOp
 	case stringToCalc[1] == "-":
-		firstBinOp, err := strconv.Atoi(stringToCalc[0])
+		firstBinOp, err := strconv.ParseFloat(stringToCalc[0], 64)
 		if err != nil {
 			log.Fatal(err)
 		}
-		secondBinOp, err := strconv.Atoi(stringToCalc[2])
+		secondBinOp, err := strconv.ParseFloat(stringToCalc[2], 64)
 		if err != nil {
 			log.Fatal(err)
 		}
 		result += firstBinOp - secondBinOp
 	case stringToCalc[1] == "/": // наверное лишнее, так как тут считаются только + и -
-		firstBinOp, err := strconv.Atoi(stringToCalc[0])
+		firstBinOp, err := strconv.ParseFloat(stringToCalc[0], 64)
 		if err != nil {
 			log.Fatal(err)
 		}
-		secondBinOp, err := strconv.Atoi(stringToCalc[2])
+		secondBinOp, err := strconv.ParseFloat(stringToCalc[2], 64)
 		if err != nil {
 			log.Fatal(err)
 		}
 		result += firstBinOp / secondBinOp
 	case stringToCalc[1] == "*":
-		firstBinOp, err := strconv.Atoi(stringToCalc[0])
+		firstBinOp, err := strconv.ParseFloat(stringToCalc[0], 64)
 		if err != nil {
 			log.Fatal(err)
 		}
-		secondBinOp, err := strconv.Atoi(stringToCalc[2])
+		secondBinOp, err := strconv.ParseFloat(stringToCalc[2], 64)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -136,9 +136,9 @@ func parseBinOp(stringToCalc []string) int {
 }
 
 // Основная функция преобразования строки в ответ
-func parseAll(stringToCalc []string) (int, error) {
+func parseAll(stringToCalc []string) (float64, error) {
 	var (
-		result = 0
+		result float64
 	)
 
 	// Этот цикл разбивает данные на скобки, рекурсивно заходя в каждую из подскобок и вычисляя значение в ней
@@ -163,7 +163,7 @@ func parseAll(stringToCalc []string) (int, error) {
 			if err != nil {
 				return 0, err
 			}
-			intermediateString := strconv.Itoa(intermediateStringParse)
+			intermediateString := strconv.FormatFloat(intermediateStringParse, 'E', -1, 64)
 			leftPart := stringToCalc[:openIndex]
 			leftPart = append(leftPart, intermediateString)
 			rightPart := stringToCalc[closeIndex+1:]
@@ -180,7 +180,7 @@ func parseAll(stringToCalc []string) (int, error) {
 			stringToCalc = []string{stringToCalc[0]}
 		}
 
-		_, err := strconv.Atoi(stringToCalc[0])
+		_, err := strconv.ParseFloat(stringToCalc[0], 64)
 		if err != nil {
 			Err := errors.New("ошибка синтаксиса! Проверьте на наличие двух операторов подряд")
 			return 0, Err
@@ -194,7 +194,7 @@ func parseAll(stringToCalc []string) (int, error) {
 		} else {
 			stringToCalc = []string{stringToCalc[0]}
 		}
-		_, err := strconv.Atoi(stringToCalc[0])
+		_, err := strconv.ParseFloat(stringToCalc[0], 64)
 		if err != nil {
 			Err := errors.New("ошибка синтаксиса! Проверьте на наличие двух операторов подряд")
 			return 0, Err
@@ -225,24 +225,24 @@ func parseAll(stringToCalc []string) (int, error) {
 			stack.Push(stringToCalc[i+1])
 		} else {
 			// ParseFloat(stack.Pop(), 32)
-			firstBinOp, _ := strconv.Atoi(stack.Pop())
-			secondBinOp, _ := strconv.Atoi(stringToCalc[i+1])
+			firstBinOp, _ := strconv.ParseFloat(stack.Pop(), 64)
+			secondBinOp, _ := strconv.ParseFloat(stringToCalc[i+1], 64)
 			if stringToCalc[i] == "*" {
 				if stringToCalc[i+1] == "+" || stringToCalc[i+1] == "-" || stringToCalc[i+1] == "*" || stringToCalc[i+1] == "/" {
 					Err := errors.New("ошибка синтаксиса! Проверьте на наличие двух операторов подряд")
 					return 0, Err
 				} // FormatFloat(firstBinOp * secondBinOp, 'E', -1, 32)
-				stack.Push(strconv.Itoa(firstBinOp * secondBinOp))
+				stack.Push(strconv.FormatFloat(firstBinOp*secondBinOp, 'E', -1, 64))
 			} else if stringToCalc[i] == "/" {
 				if stringToCalc[i+1] == "+" || stringToCalc[i+1] == "-" || stringToCalc[i+1] == "*" || stringToCalc[i+1] == "/" {
 					Err := errors.New("ошибка синтаксиса! Проверьте на наличие двух операторов подряд")
 					return 0, Err
 				}
-				stack.Push(strconv.Itoa(firstBinOp / secondBinOp))
+				stack.Push(strconv.FormatFloat(firstBinOp/secondBinOp, 'E', -1, 64))
 			} else {
 				if stringToCalc[i] == "." || stringToCalc[i] == "," {
 					Err := errors.New("ошибка синтаксиса! " +
-						"Калькулятор не поддерживает числа с запятой или точкой")
+						"Калькулятор не поддерживает числа с запятой или точкой, но поддерживает работу с дробями")
 					return 0, Err
 				}
 				Err := errors.New("ошибка синтаксиса! Неизвестный символ операции")
@@ -255,7 +255,7 @@ func parseAll(stringToCalc []string) (int, error) {
 
 	// Цикл, который позволяет пройтись по слайсу и вычислить значения внутри него относительно сложения и вычитания
 	for 1 < len(stringToCalc) {
-		intermediateResult := strconv.Itoa(parseBinOp(stringToCalc[0:3]))
+		intermediateResult := strconv.FormatFloat(parseBinOp(stringToCalc[0:3]), 'E', -1, 64)
 		rightPart := make([]string, len(stringToCalc)-2)
 		if len(rightPart) == 0 {
 			break
@@ -264,6 +264,6 @@ func parseAll(stringToCalc []string) (int, error) {
 		rightPart[0] = intermediateResult
 		stringToCalc = rightPart
 	}
-	result, _ = strconv.Atoi(stringToCalc[0])
+	result, _ = strconv.ParseFloat(stringToCalc[0], 64)
 	return result, nil
 }

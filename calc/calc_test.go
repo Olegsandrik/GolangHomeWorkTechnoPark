@@ -514,13 +514,24 @@ func TestCheckSuccess43(t *testing.T) {
 	var inputString = "1/4 + 1/4"
 	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
 	answer, err := Calculator(stringToCalc)
-	if answer != 1 { // 1/2!!!
+	if answer != 0.5 { // 1/2!!!
 		t.Fatalf("Incorrect result")
 	}
 	if err != nil {
 		t.Fatalf("%s", err)
 	}
+}
 
+func TestCheckSuccess44(t *testing.T) {
+	var inputString = "1/3 + 1/3 + 1/3"
+	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
+	answer, err := Calculator(stringToCalc)
+	if answer != 1 {
+		t.Fatalf("incorrect result")
+	}
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
 }
 
 func TestCheckFail(t *testing.T) {
@@ -654,6 +665,36 @@ func TestCheckFail13(t *testing.T) {
 
 func TestCheckFail14(t *testing.T) {
 	var inputString = "(-100)&10+6%200@12"
+	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
+	_, err := Calculator(stringToCalc)
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
+}
+
+func TestCheckFail15(t *testing.T) {
+	var inputString = "1/3 + 1/3 + 1/3"
+	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
+	answer, err := Calculator(stringToCalc)
+	if answer != 0.9999999 {
+		t.Fatalf("incorrect result")
+	}
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
+}
+
+func TestCheckFail16(t *testing.T) {
+	var inputString = "0.3 + 1.3 + 1.3"
+	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
+	_, err := Calculator(stringToCalc)
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
+}
+
+func TestCheckFail17(t *testing.T) {
+	var inputString = "0,3 + 1,3 + 1,3"
 	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
 	_, err := Calculator(stringToCalc)
 	if err != nil {
