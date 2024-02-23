@@ -224,13 +224,14 @@ func parseAll(stringToCalc []string) (int, error) {
 			stack.Push(stringToCalc[i])
 			stack.Push(stringToCalc[i+1])
 		} else {
+			// ParseFloat(stack.Pop(), 32)
 			firstBinOp, _ := strconv.Atoi(stack.Pop())
 			secondBinOp, _ := strconv.Atoi(stringToCalc[i+1])
 			if stringToCalc[i] == "*" {
 				if stringToCalc[i+1] == "+" || stringToCalc[i+1] == "-" || stringToCalc[i+1] == "*" || stringToCalc[i+1] == "/" {
 					Err := errors.New("ошибка синтаксиса! Проверьте на наличие двух операторов подряд")
 					return 0, Err
-				}
+				} // FormatFloat(firstBinOp * secondBinOp, 'E', -1, 32)
 				stack.Push(strconv.Itoa(firstBinOp * secondBinOp))
 			} else if stringToCalc[i] == "/" {
 				if stringToCalc[i+1] == "+" || stringToCalc[i+1] == "-" || stringToCalc[i+1] == "*" || stringToCalc[i+1] == "/" {
@@ -238,9 +239,13 @@ func parseAll(stringToCalc []string) (int, error) {
 					return 0, Err
 				}
 				stack.Push(strconv.Itoa(firstBinOp / secondBinOp))
-			} else { // -100*4 докинет в эту ветку
-				Err := errors.New("ошибка синтаксиса! Добавьте, пожалуйста, унарные минусы в скобки," +
-					"в соответствии правилами математики")
+			} else {
+				if stringToCalc[i] == "." || stringToCalc[i] == "," {
+					Err := errors.New("ошибка синтаксиса! " +
+						"Калькулятор не поддерживает числа с запятой или точкой")
+					return 0, Err
+				}
+				Err := errors.New("ошибка синтаксиса! Неизвестный символ операции")
 				return 0, Err
 			}
 		}
