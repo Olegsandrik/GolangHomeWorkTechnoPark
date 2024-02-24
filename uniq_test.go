@@ -144,7 +144,7 @@ func TestTableParserFail17(t *testing.T) {
 
 }
 
-func TestTableParserFail118(t *testing.T) {
+func TestTableParserFail18(t *testing.T) {
 	require.Equal(t, tableTests[17].out, Uniq(tableTests[14].in, Options{I: true, F: 1, S: 3, D: true}), "The two slices should be the same.")
 
 }
