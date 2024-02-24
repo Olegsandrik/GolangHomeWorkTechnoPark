@@ -33,7 +33,7 @@ func Uniq(stringsIn []string, option Options) []string {
 		stringsOutWithout []string
 	)
 
-	numChars := option.S
+	numChars := option.S // работает правильно, только если преобразовывать в rune?
 	numFields := option.F
 
 	// Соблюдаем CDU или его отсутствие и все остальные флаги
@@ -53,7 +53,7 @@ func Uniq(stringsIn []string, option Options) []string {
 				if currentString[j] != ' ' && currentString[j+1] == ' ' {
 					countFieldCurrent++
 					if countFieldCurrent == numFields {
-						currentPointer = j + 1
+						currentPointer = j + 1 // указывает на байт!
 						break
 					}
 				}
@@ -64,16 +64,24 @@ func Uniq(stringsIn []string, option Options) []string {
 				if stringsIn[i][k] != ' ' && stringsIn[i][k+1] == ' ' {
 					countFieldString++
 					if countFieldString == numFields {
-						stringPointer = k + 1
+						stringPointer = k + 1 // указывает на байт!
 						break
 					}
 				}
 			}
 		}
 
+		// корректировка, если -f и -s одновременно
+		if numChars != 0 && numFields != 0 {
+			// Не учитывая пробел-разделитель после последнего поля. - из условия задачки
+			// Я так понял, что нужно выкинуть лишь 1 пробел, а остальные значимыми считаются
+			currentPointer++
+			stringPointer++
+		}
+
 		if option.I {
-			// Не учитывать регистр
-			if strings.ToLower(currentString[(numChars+currentPointer):]) == strings.ToLower(stringsIn[i][(numChars+stringPointer):]) {
+			// сначала обрезаем field, а потом обрезаем char
+			if strings.ToLower(string(([]rune(currentString[currentPointer:]))[numChars:])) == strings.ToLower(string(([]rune(stringsIn[i][stringPointer:]))[numChars:])) {
 				counterUniq++
 				continue
 			} else {
@@ -85,7 +93,7 @@ func Uniq(stringsIn []string, option Options) []string {
 			}
 		} else {
 			// Учитывать регистр
-			if currentString[(numChars+currentPointer):] == stringsIn[i][(numChars+stringPointer):] {
+			if string(([]rune(currentString[currentPointer:]))[numChars:]) == (string(([]rune(stringsIn[i][stringPointer:]))[numChars:])) {
 				counterUniq++
 				continue
 			} else {
