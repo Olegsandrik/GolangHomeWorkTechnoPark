@@ -1,24 +1,13 @@
 package main
 
 import (
+	"bufio"
+	"errors"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 )
-
-/*
--с - подсчитать количество встречаний строки во входных данных. Вывести это число перед строкой отделив пробелом.
-
--d - вывести только те строки, которые повторились во входных данных.
-
--u - вывести только те строки, которые не повторились во входных данных.
-
--f num_fields - не учитывать первые num_fields полей в строке. Полем в строке является непустой набор символов отделённый пробелом.
-
--s num_chars - не учитывать первые num_chars символов в строке. При использовании вместе с параметром -f учитываются первые символы после num_fields полей (не учитывая пробел-разделитель после последнего поля).
-
--i - не учитывать регистр букв.
-*/
 
 // Options - Структура флагов
 type Options struct {
@@ -143,81 +132,120 @@ func Uniq(stringsIn []string, option Options) []string {
 }
 
 func main() {
-	stringsIn1 := []string{"I love music.", "I love music.", "I love music.", " ", "I love music of Kartik.", "I love music of Kartik.",
-		"Thanks.", "I love music of Kartik.", "I love music of Kartik."} // Обычный
-	stringsIn2 := []string{"I love music.", "I love music.", "I love music.", " ", "I love music of Kartik.", "I love music of Kartik.",
-		"Thanks.", "I love music of Kartik.", "I love music of Kartik."} // С флагом C
-	stringsIn3 := []string{"I love music.", "I love music.", "I love music.", " ", "I love music of Kartik.", "I love music of Kartik.",
-		"Thanks.", "I love music of Kartik.", "I love music of Kartik."} // С флагом D
-	stringsIn4 := []string{"I love music.", "I love music.", "I love music.", " ", "I love music of Kartik.", "I love music of Kartik.",
-		"Thanks.", "I love music of Kartik.", "I love music of Kartik."} // С флагом U
-	stringsIn5 := []string{"I LOVE MUSIC.", "I love music.", "I LoVe MuSiC.", " ", "I love MuSIC of Kartik.", "I love music of kartik.",
-		"Thanks.", "I love music of kartik.", "I love MuSIC of Kartik."} // С флагом I
-	stringsIn6 := []string{"We love music.", "I love music.", "They love music.", " ", "I love music of Kartik.", "We love music of Kartik.",
-		"Thanks"} // С флагом F
-	stringsIn7 := []string{"I love music.", "A love music.", "C love music.", " ", "I love music of Kartik.", "We love music of Kartik.",
-		"Thanks."} // С флагом S
-	// вывод и ввод нашей утилиты
-	/*
-		if len(option.Input) > 0 {
-			if len(option.Output) > 0 {
-				// тут оба указаны
+	// go run uniq.go -c -i -f 1 -s 1 input.txt output.txt
+
+	contition := os.Args[1:]
+	option := Options{}
+	var err error
+	for i := 0; i < len(contition); i++ {
+		switch contition[i] {
+		case "-c":
+			if option.U || option.D {
+				err = errors.New("нельзя использовать флаг -c и флаг -u или -d")
+				log.Fatal(err)
 			}
-			// тут о только ввод
+			option.C = true
+		case "-d":
+			if option.C || option.U {
+				err = errors.New("нельзя использовать флаг -d и флаг -u или -c")
+				log.Fatal(err)
+			}
+			option.D = true
+		case "-u":
+			if option.C || option.D {
+				err = errors.New("нельзя использовать флаг -u и флаг -d или -c")
+				log.Fatal(err)
+			}
+			option.U = true
+		case "-i":
+			option.I = true
+		case "-f":
+			if i+1 >= len(contition) {
+				err = errors.New("пропущено число после флага -f")
+				log.Fatal(err)
+			}
+			option.F, err = strconv.Atoi(contition[i+1])
+			if err != nil {
+				err = errors.New("пропущено число после флага -f")
+				log.Fatal(err)
+			}
+			i++
+		case "-s":
+			if i+1 >= len(contition) {
+				err = errors.New("пропущено число после флага -s")
+				log.Fatal(err)
+			}
+			option.S, err = strconv.Atoi(contition[i+1])
+			if err != nil {
+				err = errors.New("пропущено число после флага -s")
+				log.Fatal(err)
+			}
+			i++
+		default:
+			if option.Input == "" {
+				option.Input = contition[i]
+			} else if option.Output == "" {
+				option.Output = contition[i]
+			} else {
+				err = errors.New("лишний аргумент" + contition[i])
+				log.Fatal(err)
+			}
 		}
-	*/
-	option1 := Options{}
-	stringsOut1 := Uniq(stringsIn1, option1)
-	for i := 0; i < len(stringsOut1); i++ {
-		log.Println(stringsOut1[i])
+	}
+	fileWork(option)
+}
+
+// Работа с вводом и выводом
+func fileWork(option Options) {
+	inputFile := option.Input
+	outputFile := option.Output
+	stringsIn := []string{}
+
+	if option.Input != "" { // Либо файлик ввели как параметр
+		file, err := os.Open(inputFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+		lineCount := 0
+		for scanner.Scan() {
+			lineCount++
+			stringsIn = append(stringsIn, scanner.Text())
+		}
+	} else { // Либо данные нужно считать
+		scanner := bufio.NewScanner(os.Stdin)
+		for scanner.Scan() {
+			stringsIn = append(stringsIn, scanner.Text())
+		}
 	}
 
-	log.Println("Пошел 2 тест")
+	stringsOut := Uniq(stringsIn, option)
 
-	option2 := Options{C: true}
-	stringsOut2 := Uniq(stringsIn2, option2)
-	for i := 0; i < len(stringsOut2); i++ {
-		log.Println(stringsOut2[i])
+	if outputFile != "" { // Либо файлик ввели как параметр
+		file2, err := os.Create(outputFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		for i := 0; i < len(stringsOut); i++ {
+			if i != len(stringsOut)-1 { // Чтобы лишнюю строчку в конец не писал
+				_, err = file2.Write([]byte(stringsOut[i] + "\n"))
+				if err != nil {
+					log.Fatal(err)
+				}
+			} else {
+				_, err = file2.Write([]byte(stringsOut[i]))
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+
+		}
+		defer file2.Close()
+	} else { // Либо выводим в консоль
+		for i := 0; i < len(stringsOut); i++ {
+			log.Println(stringsOut[i])
+		}
 	}
-
-	log.Println("Пошел 3 тест")
-
-	option3 := Options{D: true}
-	stringsOut3 := Uniq(stringsIn3, option3)
-	for i := 0; i < len(stringsOut3); i++ {
-		log.Println(stringsOut3[i])
-	}
-
-	log.Println("Пошел 4 тест")
-
-	option4 := Options{U: true}
-	stringsOut4 := Uniq(stringsIn4, option4)
-	for i := 0; i < len(stringsOut4); i++ {
-		log.Println(stringsOut4[i])
-	}
-
-	log.Println("Пошел 5 тест")
-
-	option5 := Options{I: true}
-	stringsOut5 := Uniq(stringsIn5, option5)
-	for i := 0; i < len(stringsOut5); i++ {
-		log.Println(stringsOut5[i])
-	}
-
-	log.Println("Пошел 6 тест")
-
-	option6 := Options{F: 1}
-	stringsOut6 := Uniq(stringsIn6, option6)
-	for i := 0; i < len(stringsOut6); i++ {
-		log.Println(stringsOut6[i])
-	}
-
-	log.Println("Пошел 7 тест")
-
-	option7 := Options{S: 1}
-	stringsOut7 := Uniq(stringsIn7, option7)
-	for i := 0; i < len(stringsOut7); i++ {
-		log.Println(stringsOut7[i])
-	}
-
 }
