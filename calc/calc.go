@@ -110,26 +110,6 @@ func parseBinOp(stringToCalc []string) float64 {
 			log.Fatal(err)
 		}
 		result += firstBinOp - secondBinOp
-	case stringToCalc[1] == "/": // наверное лишнее, так как тут считаются только + и -
-		firstBinOp, err := strconv.ParseFloat(stringToCalc[0], 64)
-		if err != nil {
-			log.Fatal(err)
-		}
-		secondBinOp, err := strconv.ParseFloat(stringToCalc[2], 64)
-		if err != nil {
-			log.Fatal(err)
-		}
-		result += firstBinOp / secondBinOp
-	case stringToCalc[1] == "*":
-		firstBinOp, err := strconv.ParseFloat(stringToCalc[0], 64)
-		if err != nil {
-			log.Fatal(err)
-		}
-		secondBinOp, err := strconv.ParseFloat(stringToCalc[2], 64)
-		if err != nil {
-			log.Fatal(err)
-		}
-		result = result + firstBinOp*secondBinOp
 	}
 
 	return result
