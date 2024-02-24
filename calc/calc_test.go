@@ -534,6 +534,18 @@ func TestCheckSuccess44(t *testing.T) {
 	}
 }
 
+func TestCheckSuccess45(t *testing.T) {
+	var inputString = "(+1+19) + 0 + 0"
+	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
+	answer, err := Calculator(stringToCalc)
+	if answer != 20 {
+		t.Fatalf("incorrect result")
+	}
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
+}
+
 func TestCheckFail(t *testing.T) {
 	var inputString = "4*-100"
 	stringToCalc := strings.Split(strings.ReplaceAll(inputString, " ", ""), "")
