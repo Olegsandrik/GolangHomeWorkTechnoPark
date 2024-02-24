@@ -3,6 +3,8 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
+	"io"
 	"log"
 	"os"
 	"strconv"
@@ -133,12 +135,13 @@ func Uniq(stringsIn []string, option Options) []string {
 
 func main() {
 	// go run uniq.go -c -i -f 1 -s 1 input.txt output.txt
+	// cat input.txt | go run uniq.go -c -i -f 1 -s 1 input.txt output.txt
 
-	contition := os.Args[1:]
+	condition := os.Args[1:]
 	option := Options{}
 	var err error
-	for i := 0; i < len(contition); i++ {
-		switch contition[i] {
+	for i := 0; i < len(condition); i++ {
+		switch condition[i] {
 		case "-c":
 			if option.U || option.D {
 				err = errors.New("нельзя использовать флаг -c и флаг -u или -d")
@@ -160,22 +163,22 @@ func main() {
 		case "-i":
 			option.I = true
 		case "-f":
-			if i+1 >= len(contition) {
+			if i+1 >= len(condition) {
 				err = errors.New("пропущено число после флага -f")
 				log.Fatal(err)
 			}
-			option.F, err = strconv.Atoi(contition[i+1])
+			option.F, err = strconv.Atoi(condition[i+1])
 			if err != nil {
 				err = errors.New("пропущено число после флага -f")
 				log.Fatal(err)
 			}
 			i++
 		case "-s":
-			if i+1 >= len(contition) {
+			if i+1 >= len(condition) {
 				err = errors.New("пропущено число после флага -s")
 				log.Fatal(err)
 			}
-			option.S, err = strconv.Atoi(contition[i+1])
+			option.S, err = strconv.Atoi(condition[i+1])
 			if err != nil {
 				err = errors.New("пропущено число после флага -s")
 				log.Fatal(err)
@@ -183,11 +186,11 @@ func main() {
 			i++
 		default:
 			if option.Input == "" {
-				option.Input = contition[i]
+				option.Input = condition[i]
 			} else if option.Output == "" {
-				option.Output = contition[i]
+				option.Output = condition[i]
 			} else {
-				err = errors.New("лишний аргумент" + contition[i])
+				err = errors.New("лишний аргумент" + condition[i])
 				log.Fatal(err)
 			}
 		}
@@ -199,6 +202,8 @@ func main() {
 func fileWork(option Options) {
 	inputFile := option.Input
 	outputFile := option.Output
+	var readFrom io.Reader
+	var writeTo io.Writer
 	stringsIn := []string{}
 
 	if option.Input != "" { // Либо файлик ввели как параметр
@@ -207,18 +212,15 @@ func fileWork(option Options) {
 			log.Fatal(err)
 		}
 		defer file.Close()
-
-		scanner := bufio.NewScanner(file)
-		lineCount := 0
-		for scanner.Scan() {
-			lineCount++
-			stringsIn = append(stringsIn, scanner.Text())
-		}
+		readFrom = file
 	} else { // Либо данные нужно считать
-		scanner := bufio.NewScanner(os.Stdin)
-		for scanner.Scan() {
-			stringsIn = append(stringsIn, scanner.Text())
-		}
+		readFrom = os.Stdin
+	}
+
+	// читаем данные
+	scanner := bufio.NewScanner(readFrom)
+	for scanner.Scan() {
+		stringsIn = append(stringsIn, scanner.Text())
 	}
 
 	stringsOut := Uniq(stringsIn, option)
@@ -228,24 +230,12 @@ func fileWork(option Options) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		for i := 0; i < len(stringsOut); i++ {
-			if i != len(stringsOut)-1 { // Чтобы лишнюю строчку в конец не писал
-				_, err = file2.Write([]byte(stringsOut[i] + "\n"))
-				if err != nil {
-					log.Fatal(err)
-				}
-			} else {
-				_, err = file2.Write([]byte(stringsOut[i]))
-				if err != nil {
-					log.Fatal(err)
-				}
-			}
-
-		}
+		writeTo = file2
 		defer file2.Close()
 	} else { // Либо выводим в консоль
-		for i := 0; i < len(stringsOut); i++ {
-			log.Println(stringsOut[i])
-		}
+		writeTo = os.Stdout
+	}
+	for i := 0; i < len(stringsOut); i++ {
+		fmt.Fprintln(writeTo, stringsOut[i])
 	}
 }
