@@ -19,7 +19,7 @@ func Calculator(inputString string) (float64, error) {
 }
 
 // UnionBigNumbers принимает slice строк, объединяет числа, которые имеют длину больше одного символа,
-// в одну строку и возвращает измененный slice строк или ошибку
+// в одну строку и возвращает измененный slice строк
 func UnionBigNumbers(stringWithoutBigNumbers []string) []string {
 	var (
 		stringWithBigNumbers []string
@@ -55,7 +55,7 @@ func UnionBigNumbers(stringWithoutBigNumbers []string) []string {
 	return stringWithBigNumbers
 }
 
-// ParseAll - основная функция.
+// ParseAll - основная функция калькулятора, вычисляющая значение переданного среза строчек.
 func ParseAll(stringToCalc []string) (float64, error) {
 	var (
 		result float64
@@ -111,6 +111,7 @@ func ParseAll(stringToCalc []string) (float64, error) {
 		}
 	}
 
+	// Проверка на ошибки в синтаксисе
 	if stringToCalc[0] == "*" || stringToCalc[0] == "/" || len(stringToCalc)%2 == 0 {
 		err := errors.New("ошибка синтаксиса")
 		return 0, err
