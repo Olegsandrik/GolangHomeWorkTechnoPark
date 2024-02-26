@@ -56,6 +56,7 @@ func UnionBigNumbers(stringWithoutBigNumbers []string) []string {
 }
 
 // ParseAll - основная функция калькулятора, вычисляющая значение переданного среза строчек.
+// Возвращает значение выражения или ошибку
 func ParseAll(stringToCalc []string) (float64, error) {
 	var (
 		result float64
