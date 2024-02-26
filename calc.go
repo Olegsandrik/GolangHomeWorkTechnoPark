@@ -12,6 +12,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+
 	result, err := myCalc.Calculator(scan)
 	if err != nil {
 		fmt.Println(err)
