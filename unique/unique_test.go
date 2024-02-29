@@ -119,7 +119,7 @@ func TestTableParserFail(t *testing.T) {
 		if err != nil {
 			t.Fatalf("%s", err)
 		}
-		require.NotEqual(t, t, item.out, result, "The two slices should not be the same.")
+		require.NotEqual(t, item.out, result, "The two slices should not be the same.")
 	}
 
 }
