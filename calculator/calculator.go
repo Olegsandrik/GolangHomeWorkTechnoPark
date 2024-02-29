@@ -3,6 +3,7 @@ package calculator
 import (
 	Stack "GolangHomeWorkTechnoPark/stack"
 	"errors"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -32,6 +33,8 @@ func UnionBigNumbers(stringWithoutBigNumbers []string) []string {
 			for j := i + 1; j < len(stringWithoutBigNumbers); j++ {
 				_, err = strconv.Atoi(stringWithoutBigNumbers[j])
 				if err == nil {
+					intermediateString += stringWithoutBigNumbers[j]
+				} else if stringWithoutBigNumbers[j] == "." {
 					intermediateString += stringWithoutBigNumbers[j]
 				} else {
 					stringWithBigNumbers = append(stringWithBigNumbers, intermediateString)
@@ -138,9 +141,9 @@ func ParseAll(stringToCalc []string) (float64, error) {
 			} else if stringToCalc[i] == "/" {
 				stack.Push(strconv.FormatFloat(firstBinOp/secondBinOp, 'E', -1, 64))
 			} else {
-				if stringToCalc[i] == "." || stringToCalc[i] == "," {
+				if stringToCalc[i] == "," {
 					err := errors.New("ошибка синтаксиса! " +
-						"Калькулятор не поддерживает числа с запятой или точкой, но поддерживает работу с дробями")
+						"Калькулятор не поддерживает числа с запятой, но поддерживает числа с точкой")
 					return 0, err
 				}
 				err := errors.New("ошибка синтаксиса! Неизвестный символ операции")
@@ -170,5 +173,6 @@ func ParseAll(stringToCalc []string) (float64, error) {
 		stringToCalc = rightPart
 	}
 	result, _ = strconv.ParseFloat(stringToCalc[0], 64)
+	result = math.Round(result*100000000000000) / 100000000000000
 	return result, nil
 }
