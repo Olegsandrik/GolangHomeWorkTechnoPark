@@ -43,6 +43,10 @@ func Scanner() (uniq.Options, error) {
 		err = errors.New("выберите один из флагов c, d, u")
 	}
 
+	if option.Output != "" && option.Input == "" {
+		err = errors.New("нельзя передать параметр output без параметра input")
+	}
+
 	return option, err
 }
 
