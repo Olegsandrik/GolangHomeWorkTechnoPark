@@ -683,7 +683,6 @@ func TestCheckFail13(t *testing.T) {
 
 func TestCheckFail14(t *testing.T) {
 	var inputString = "(-100)&10+6%200@12"
-
 	_, err := Calculator(inputString)
 	if err != nil {
 		t.Fatalf("%s", err)
@@ -692,7 +691,6 @@ func TestCheckFail14(t *testing.T) {
 
 func TestCheckFail15(t *testing.T) {
 	var inputString = "1/3 + 1/3 + 1/3"
-
 	answer, err := Calculator(inputString)
 	if answer != 0.9999999 {
 		t.Fatalf("incorrect result")
@@ -704,7 +702,6 @@ func TestCheckFail15(t *testing.T) {
 
 func TestCheckFail16(t *testing.T) {
 	var inputString = "0,3 + 1,3 + 1,3"
-
 	_, err := Calculator(inputString)
 	if err != nil {
 		t.Fatalf("%s", err)
